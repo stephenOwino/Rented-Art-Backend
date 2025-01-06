@@ -1,6 +1,6 @@
 # Build stage
 FROM maven:3-eclipse-temurin-17 AS build
-COPY . .  
+COPY . .
 RUN mvn clean package -DskipTests
 
 # Final stage
