@@ -14,5 +14,21 @@ import lombok.NoArgsConstructor;
 public class Artist extends User {
         private String portfolioLink; // Link to artist's portfolio
         private String bio; // Artist bio
+
+        public String getPortfolioLink() {
+                return portfolioLink;
+        }
+
+        public void setPortfolioLink(String portfolioLink) {
+                this.portfolioLink = portfolioLink;
+        }
+
+        public String getBio() {
+                return bio;
+        }
+
+        public void setBio(String bio) {
+                this.bio = bio;
+        }
 }
 

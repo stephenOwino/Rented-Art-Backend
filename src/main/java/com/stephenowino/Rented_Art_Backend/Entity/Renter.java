@@ -14,5 +14,21 @@ import lombok.NoArgsConstructor;
 public class Renter extends User {
         private String contactNumber; // Renter contact information
         private String address; // Address details
+
+        public String getContactNumber() {
+                return contactNumber;
+        }
+
+        public void setContactNumber(String contactNumber) {
+                this.contactNumber = contactNumber;
+        }
+
+        public String getAddress() {
+                return address;
+        }
+
+        public void setAddress(String address) {
+                this.address = address;
+        }
 }
 
