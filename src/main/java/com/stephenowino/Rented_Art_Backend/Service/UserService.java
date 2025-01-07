@@ -5,7 +5,7 @@ import com.stephenowino.Rented_Art_Backend.Entity.Renter;
 import com.stephenowino.Rented_Art_Backend.Repository.ArtistRepo;
 import com.stephenowino.Rented_Art_Backend.Repository.RenterRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,7 +18,7 @@ public class UserService {
         private RenterRepo renterRepository;
 
         @Autowired
-        private BCryptPasswordEncoder passwordEncoder;
+        private PasswordEncoder passwordEncoder;
 
         // Method to register a new user (either Artist or Renter)
         public Object saveUser(Object user) {
