@@ -66,6 +66,7 @@ public class UserController {
                 }
         }
 
+
         // Endpoint to find a user by username (can be Artist or Renter)
         @GetMapping("/{username}")
         public ResponseEntity<Object> getUserByUsername(@PathVariable String username) {
