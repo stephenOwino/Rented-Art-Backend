@@ -15,20 +15,33 @@ public class UserController {
         @Autowired
         private UserService userService;
 
-        // Endpoint to register a new user (Artist or Renter)
-        @PostMapping("/register")
-        public ResponseEntity<String> registerUser(@RequestBody Object user) {
+        // Endpoint to register a new Artist
+        @PostMapping("/register/artist")
+        public ResponseEntity<String> registerArtist(@RequestBody Artist artist) {
                 try {
-                        boolean isRegistered = userService.findByUsername(((Artist) user).getUsername()) != null ||
-                                userService.findByUsername(((Renter) user).getUsername()) != null;
-
+                        boolean isRegistered = userService.findByUsername(artist.getUsername()) != null;
                         if (isRegistered) {
                                 return new ResponseEntity<>("Username already taken.", HttpStatus.CONFLICT);
                         }
-                        userService.saveUser(user);
-                        return new ResponseEntity<>("User registered successfully!", HttpStatus.CREATED);
+                        userService.saveUser(artist);
+                        return new ResponseEntity<>("Artist registered successfully!", HttpStatus.CREATED);
                 } catch (Exception e) {
-                        return new ResponseEntity<>("Error registering user: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+                        return new ResponseEntity<>("Error registering artist: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+                }
+        }
+
+        // Endpoint to register a new Renter
+        @PostMapping("/register/renter")
+        public ResponseEntity<String> registerRenter(@RequestBody Renter renter) {
+                try {
+                        boolean isRegistered = userService.findByUsername(renter.getUsername()) != null;
+                        if (isRegistered) {
+                                return new ResponseEntity<>("Username already taken.", HttpStatus.CONFLICT);
+                        }
+                        userService.saveUser(renter);
+                        return new ResponseEntity<>("Renter registered successfully!", HttpStatus.CREATED);
+                } catch (Exception e) {
+                        return new ResponseEntity<>("Error registering renter: " + e.getMessage(), HttpStatus.BAD_REQUEST);
                 }
         }
 
