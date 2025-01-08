@@ -69,6 +69,26 @@ public class UserController {
                         return new ResponseEntity<>("Error logging in: " + e.getMessage(), HttpStatus.BAD_REQUEST);
                 }
         }
+        @PostMapping("/login/artist")
+        public ResponseEntity<String> loginArtist(@RequestBody Artist artist) {
+                try {
+                        // Check if artist exists
+                        Artist existingArtist = (Artist) userService.findByUsername(artist.getUsername());
+                        if (existingArtist != null) {
+                                // Use BCryptPasswordEncoder to match the password (hashed password)
+                                PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+                                if (passwordEncoder.matches(artist.getPassword(), existingArtist.getPassword())) {
+                                        return new ResponseEntity<>("Login successful", HttpStatus.OK);
+                                } else {
+                                        return new ResponseEntity<>("Invalid password", HttpStatus.UNAUTHORIZED);
+                                }
+                        } else {
+                                return new ResponseEntity<>("Artist not found", HttpStatus.NOT_FOUND);
+                        }
+                } catch (Exception e) {
+                        return new ResponseEntity<>("Error logging in: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+                }
+        }
 
 
         // Endpoint to find a user by username (can be Artist or Renter)
