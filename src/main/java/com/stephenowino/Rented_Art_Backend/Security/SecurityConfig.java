@@ -48,15 +48,16 @@ public class SecurityConfig implements WebMvcConfigurer
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 return http
-                        .csrf(customizer -> customizer.disable())
+                        .csrf(customizer -> customizer.disable())  // Disable CSRF (useful for stateless apps but fine for REST APIs)
                         .authorizeHttpRequests(request -> request
-                                .requestMatchers("/api/users/register", "/api/users/login\"")
+                                .requestMatchers("/api/users/register/**", "/api/users/login")  // Allow registration and login without authentication
                                 .permitAll()
-                                .anyRequest().authenticated())
-                        .httpBasic(Customizer.withDefaults())
-                        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .anyRequest().authenticated())  // Require authentication for any other requests
+                        .httpBasic(Customizer.withDefaults())  // Use basic HTTP authentication
+                        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))  // Use session if required (default behavior)
                         .build();
         }
+
 
         // CORS Configuration to handle cross-origin requests globally
         @Override
