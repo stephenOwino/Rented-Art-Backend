@@ -6,6 +6,8 @@ import com.stephenowino.Rented_Art_Backend.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -45,6 +47,7 @@ public class UserController {
                 }
         }
 
+
         // Endpoint to login (checks username and password)
         @PostMapping("/login")
         public ResponseEntity<String> loginUser(@RequestBody Renter renter) {
@@ -52,8 +55,9 @@ public class UserController {
                         // Check if user exists
                         Renter existingRenter = (Renter) userService.findByUsername(renter.getUsername());
                         if (existingRenter != null) {
-                                // Compare password (Note: Add hashing logic here if passwords are hashed in DB)
-                                if (existingRenter.getPassword().equals(renter.getPassword())) {
+                                // Use BCryptPasswordEncoder to match the password (hashed password)
+                                PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+                                if (passwordEncoder.matches(renter.getPassword(), existingRenter.getPassword())) {
                                         return new ResponseEntity<>("Login successful", HttpStatus.OK);
                                 } else {
                                         return new ResponseEntity<>("Invalid password", HttpStatus.UNAUTHORIZED);
