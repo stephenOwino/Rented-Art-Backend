@@ -45,6 +45,27 @@ public class UserController {
                 }
         }
 
+        // Endpoint to login (checks username and password)
+        @PostMapping("/login")
+        public ResponseEntity<String> loginUser(@RequestBody Renter renter) {
+                try {
+                        // Check if user exists
+                        Renter existingRenter = (Renter) userService.findByUsername(renter.getUsername());
+                        if (existingRenter != null) {
+                                // Compare password (Note: Add hashing logic here if passwords are hashed in DB)
+                                if (existingRenter.getPassword().equals(renter.getPassword())) {
+                                        return new ResponseEntity<>("Login successful", HttpStatus.OK);
+                                } else {
+                                        return new ResponseEntity<>("Invalid password", HttpStatus.UNAUTHORIZED);
+                                }
+                        } else {
+                                return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+                        }
+                } catch (Exception e) {
+                        return new ResponseEntity<>("Error logging in: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+                }
+        }
+
         // Endpoint to find a user by username (can be Artist or Renter)
         @GetMapping("/{username}")
         public ResponseEntity<Object> getUserByUsername(@PathVariable String username) {
