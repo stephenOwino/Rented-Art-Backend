@@ -20,7 +20,13 @@ public class UserService {
         @Autowired
         private PasswordEncoder passwordEncoder;
 
-        // Method to register a new user (either Artist or Renter)
+        /**
+         * Register a new user (either Artist or Renter).
+         *
+         * @param user the user object to save
+         * @return the saved user
+         * @throws IllegalArgumentException if the username already exists or the user type is invalid
+         */
         public Object saveUser(Object user) {
                 if (user instanceof Artist) {
                         Artist artist = (Artist) user;
@@ -30,8 +36,10 @@ public class UserService {
                                 throw new IllegalArgumentException("Username already taken.");
                         }
 
-                        artist.setPassword(passwordEncoder.encode(artist.getPassword())); // Encode password
+                        // Encode password and save the artist
+                        artist.setPassword(passwordEncoder.encode(artist.getPassword()));
                         return artistRepository.save(artist);
+
                 } else if (user instanceof Renter) {
                         Renter renter = (Renter) user;
 
@@ -40,13 +48,21 @@ public class UserService {
                                 throw new IllegalArgumentException("Username already taken.");
                         }
 
-                        renter.setPassword(passwordEncoder.encode(renter.getPassword())); // Encode password
+                        // Encode password and save the renter
+                        renter.setPassword(passwordEncoder.encode(renter.getPassword()));
                         return renterRepository.save(renter);
+
+                } else {
+                        throw new IllegalArgumentException("Invalid user type. Must be Artist or Renter.");
                 }
-                return null;
         }
 
-        // Method to find user by username (for login purposes)
+        /**
+         * Find a user by username.
+         *
+         * @param username the username to search for
+         * @return the user object if found, otherwise null
+         */
         public Object findByUsername(String username) {
                 Artist artist = artistRepository.findByUsername(username);
                 if (artist != null) {

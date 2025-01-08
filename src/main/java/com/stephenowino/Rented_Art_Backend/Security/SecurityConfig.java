@@ -50,7 +50,7 @@ public class SecurityConfig implements WebMvcConfigurer
                 return http
                         .csrf(customizer -> customizer.disable())
                         .authorizeHttpRequests(request -> request
-                                .requestMatchers("register", "login")
+                                .requestMatchers("/api/users/register", "/api/users/login\"")
                                 .permitAll()
                                 .anyRequest().authenticated())
                         .httpBasic(Customizer.withDefaults())
