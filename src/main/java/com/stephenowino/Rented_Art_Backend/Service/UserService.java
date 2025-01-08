@@ -11,63 +11,71 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
-        @Autowired
-        private ArtistRepo artistRepository;
+                @Autowired
+                private ArtistRepo artistRepository;
 
-        @Autowired
-        private RenterRepo renterRepository;
+                @Autowired
+                private RenterRepo renterRepository;
 
-        @Autowired
-        private PasswordEncoder passwordEncoder;
+                @Autowired
+                private PasswordEncoder passwordEncoder;
 
-        /**
-         * Register a new user (either Artist or Renter).
-         *
-         * @param user the user object to save
-         * @return the saved user
-         * @throws IllegalArgumentException if the username already exists or the user type is invalid
-         */
-        public Object saveUser(Object user) {
-                if (user instanceof Artist) {
-                        Artist artist = (Artist) user;
-
-                        // Check if username already exists
-                        if (findByUsername(artist.getUsername()) != null) {
-                                throw new IllegalArgumentException("Username already taken.");
+                /**
+                 * Register a new user (either Artist or Renter).
+                 *
+                 * @param user the user object to save
+                 * @return the saved user
+                 * @throws IllegalArgumentException if the username already exists or the user type is invalid
+                 */
+                public Object saveUser(Object user) {
+                        if (user == null) {
+                                throw new IllegalArgumentException("User object cannot be null.");
                         }
 
-                        // Encode password and save the artist
-                        artist.setPassword(passwordEncoder.encode(artist.getPassword()));
-                        return artistRepository.save(artist);
+                        if (user instanceof Artist) {
+                                Artist artist = (Artist) user;
 
-                } else if (user instanceof Renter) {
-                        Renter renter = (Renter) user;
+                                // Check if username already exists
+                                if (findByUsername(artist.getUsername()) != null) {
+                                        throw new IllegalArgumentException("Username already taken.");
+                                }
 
-                        // Check if username already exists
-                        if (findByUsername(renter.getUsername()) != null) {
-                                throw new IllegalArgumentException("Username already taken.");
+                                // Encode password and save the artist
+                                artist.setPassword(passwordEncoder.encode(artist.getPassword()));
+                                return artistRepository.save(artist);
+
+                        } else if (user instanceof Renter) {
+                                Renter renter = (Renter) user;
+
+                                // Check if username already exists
+                                if (findByUsername(renter.getUsername()) != null) {
+                                        throw new IllegalArgumentException("Username already taken.");
+                                }
+
+                                // Encode password and save the renter
+                                renter.setPassword(passwordEncoder.encode(renter.getPassword()));
+                                return renterRepository.save(renter);
+
+                        } else {
+                                throw new IllegalArgumentException("Invalid user type. Must be Artist or Renter.");
+                        }
+                }
+
+                /**
+                 * Find a user by username.
+                 *
+                 * @param username the username to search for
+                 * @return the user object if found, otherwise null
+                 */
+                public Object findByUsername(String username) {
+                        if (username == null || username.trim().isEmpty()) {
+                                return null;
                         }
 
-                        // Encode password and save the renter
-                        renter.setPassword(passwordEncoder.encode(renter.getPassword()));
-                        return renterRepository.save(renter);
-
-                } else {
-                        throw new IllegalArgumentException("Invalid user type. Must be Artist or Renter.");
+                        Artist artist = artistRepository.findByUsername(username);
+                        if (artist != null) {
+                                return artist;
+                        }
+                        return renterRepository.findByUsername(username);
                 }
         }
-
-        /**
-         * Find a user by username.
-         *
-         * @param username the username to search for
-         * @return the user object if found, otherwise null
-         */
-        public Object findByUsername(String username) {
-                Artist artist = artistRepository.findByUsername(username);
-                if (artist != null) {
-                        return artist;
-                }
-                return renterRepository.findByUsername(username);
-        }
-}
