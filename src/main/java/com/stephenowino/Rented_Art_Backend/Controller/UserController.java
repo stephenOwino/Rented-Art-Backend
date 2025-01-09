@@ -32,14 +32,15 @@ public class UserController {
                                               @RequestParam String lastName,
                                               @RequestParam String email,
                                               @RequestParam String password,
-                                              @RequestParam String confirmPassword,  // Added confirmPassword
+                                              @RequestParam String confirmPassword,
                                               @RequestParam User.Role role) {
                 try {
+                        // Check if passwords match
                         if (!password.equals(confirmPassword)) {
                                 return ResponseEntity.badRequest().body("Error: Passwords do not match");
                         }
-                        // Proceed to register user
-                        User newUser = userService.registerUser(firstName, lastName, email, password, role);
+                        // Proceed to register user, passing confirmPassword
+                        User newUser = userService.registerUser(firstName, lastName, email, password, confirmPassword, role);
                         return ResponseEntity.ok(newUser);
                 } catch (Exception e) {
                         return ResponseEntity.badRequest().body("Error: " + e.getMessage());
