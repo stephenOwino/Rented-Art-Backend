@@ -3,7 +3,7 @@ package com.stephenowino.Rented_Art_Backend.Service;
 import com.stephenowino.Rented_Art_Backend.Entity.User;
 import com.stephenowino.Rented_Art_Backend.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +16,7 @@ public class UserService {
         private UserRepository userRepository;
 
         @Autowired
-        private BCryptPasswordEncoder passwordEncoder;
+        private PasswordEncoder passwordEncoder; // Use PasswordEncoder instead of BCryptPasswordEncoder
 
         // Register a new user (encrypt password before saving)
         @Transactional
