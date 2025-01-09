@@ -30,7 +30,7 @@ public class ArtPiece {
         private Date createdAt; // Timestamp for when the art piece was created
 
         @ManyToOne
-        @JoinColumn(name = "artist_id")
+        @JoinColumn(name = "artist_id")  // Foreign key to User
         private User artist; // Artist who created the art piece
 
         @Enumerated(EnumType.STRING)
@@ -41,4 +41,3 @@ public class ArtPiece {
                 RENTED
         }
 }
-

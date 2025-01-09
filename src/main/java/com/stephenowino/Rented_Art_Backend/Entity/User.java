@@ -35,11 +35,11 @@ public class User {
 
         private String bio; // Optional bio for artist
 
-        @OneToMany(mappedBy = "user")
+        @OneToMany(mappedBy = "artist")  // Corrected mapping
         private Set<ArtPiece> artPieces; // Art pieces created by the user (if artist)
 
-        @OneToMany(mappedBy = "renter")
-        private Set<Rental> rentals; // Rentals made by the user (if renter)
+        @OneToMany(mappedBy = "renter")  // Rentals made by the user (if renter)
+        private Set<Rental> rentals;
 
         @Transient
         private String confirmPassword; // Confirm password field for validation purposes
