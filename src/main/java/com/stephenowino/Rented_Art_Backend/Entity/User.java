@@ -23,6 +23,15 @@ public abstract class User {
         @Column(nullable = false)
         private String role; // e.g., "ARTIST" or "RENTER"
 
+        @Column(nullable = false)
+        private String email; // Add email
+
+        private String fullname; // Add fullname
+
+        private boolean subscribeToMailingList; // Add mailing list opt-in
+
+        private boolean agreedToRules; // Add agreement to terms
+
         public Long getId() {
                 return id;
         }
@@ -53,6 +62,38 @@ public abstract class User {
 
         public void setRole(String role) {
                 this.role = role;
+        }
+
+        public String getEmail() {
+                return email;
+        }
+
+        public void setEmail(String email) {
+                this.email = email;
+        }
+
+        public String getFullname() {
+                return fullname;
+        }
+
+        public void setFullname(String fullname) {
+                this.fullname = fullname;
+        }
+
+        public boolean isSubscribeToMailingList() {
+                return subscribeToMailingList;
+        }
+
+        public void setSubscribeToMailingList(boolean subscribeToMailingList) {
+                this.subscribeToMailingList = subscribeToMailingList;
+        }
+
+        public boolean isAgreedToRules() {
+                return agreedToRules;
+        }
+
+        public void setAgreedToRules(boolean agreedToRules) {
+                this.agreedToRules = agreedToRules;
         }
 }
 

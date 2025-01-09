@@ -20,46 +20,48 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig implements WebMvcConfigurer
-{
+public class SecurityConfig implements WebMvcConfigurer {
 
         @Autowired
-        UserDetailsService userDetailsService;
+        private UserDetailsService userDetailsService;
 
-        // Define PasswordEncoder as a separate bean
+        // PasswordEncoder Bean
         @Bean
         public PasswordEncoder passwordEncoder() {
-                return new BCryptPasswordEncoder(12);  // You can adjust the strength as needed
+                return new BCryptPasswordEncoder(12);
         }
 
+        // AuthenticationProvider Bean
         @Bean
         public AuthenticationProvider authenticationProvider() {
                 DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-                provider.setPasswordEncoder(passwordEncoder());  // Use the defined PasswordEncoder bean
+                provider.setPasswordEncoder(passwordEncoder());
                 provider.setUserDetailsService(userDetailsService);
                 return provider;
         }
 
+        // AuthenticationManager Bean
         @Bean
         public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
                 return config.getAuthenticationManager();
         }
 
+        // SecurityFilterChain Bean
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 return http
-                        .csrf(customizer -> customizer.disable())  // Disable CSRF (useful for stateless apps but fine for REST APIs)
-                        .authorizeHttpRequests(request -> request
-                                .requestMatchers("/api/users/register/**", "/api/users/login")  // Allow registration and login without authentication
+                        .csrf(csrf -> csrf.disable()) // Disable CSRF for REST APIs; enable if you're using forms
+                        .authorizeHttpRequests(auth -> auth
+                                .requestMatchers("/", "/api/users/register/**", "/api/users/login") // Public endpoints
                                 .permitAll()
-                                .anyRequest().authenticated())  // Require authentication for any other requests
-                        .httpBasic(Customizer.withDefaults())  // Use basic HTTP authentication
-                        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))  // Use session if required (default behavior)
+                                .anyRequest()
+                                .authenticated()) // Secure all other endpoints
+                        .httpBasic(Customizer.withDefaults()) // Basic authentication
+                        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // Stateful sessions
                         .build();
         }
 
-
-        // CORS Configuration to handle cross-origin requests globally
+        // CORS Configuration
         @Override
         public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
