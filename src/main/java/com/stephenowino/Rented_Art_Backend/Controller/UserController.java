@@ -1,16 +1,18 @@
 package com.stephenowino.Rented_Art_Backend.Controller;
 
-import com.stephenowino.Rented_Art_Backend.Entity.Artist;
-import com.stephenowino.Rented_Art_Backend.Entity.Renter;
+
+import com.stephenowino.Rented_Art_Backend.Entity.User;
 import com.stephenowino.Rented_Art_Backend.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -19,102 +21,61 @@ public class UserController {
         @Autowired
         private UserService userService;
 
-        // Register Artist
-        @PostMapping("/register/artist")
-        public ResponseEntity<String> registerArtist(@RequestBody Artist artist) {
-                return registerUser(artist.getUsername(), artist.getPassword(), artist, "Artist");
-        }
+        @Autowired
+        private AuthenticationManager authenticationManager;
 
-        // Register Renter
-        @PostMapping("/register/renter")
-        public ResponseEntity<String> registerRenter(@RequestBody Renter renter) {
-                return registerUser(renter.getUsername(), renter.getPassword(), renter, "Renter");
-        }
+        @Autowired
+        private BCryptPasswordEncoder passwordEncoder;
 
-        // Common registration logic for both Artist and Renter
-        private <T> ResponseEntity<String> registerUser(String username, String password, T user, String userType) {
+        // Register a new user
+        @PostMapping("/register")
+        public ResponseEntity<?> registerUser(@RequestParam String firstName,
+                                              @RequestParam String lastName,
+                                              @RequestParam String email,
+                                              @RequestParam String password,
+                                              @RequestParam User.Role role) {
                 try {
-                        boolean isRegistered = userService.findByUsername(username) != null;
-                        if (isRegistered) {
-                                return new ResponseEntity<>(userType + " username already taken.", HttpStatus.CONFLICT);
-                        }
-                        userService.saveUser(user);
-                        return new ResponseEntity<>(userType + " registered successfully!", HttpStatus.CREATED);
+                        User newUser = userService.registerUser(firstName, lastName, email, password, role);
+                        return ResponseEntity.ok(newUser);
                 } catch (Exception e) {
-                        return new ResponseEntity<>("Error registering " + userType.toLowerCase() + ": " + e.getMessage(), HttpStatus.BAD_REQUEST);
+                        return ResponseEntity.badRequest().body("Error: " + e.getMessage());
                 }
         }
 
-        // Login for both Artist and Renter
+        // Login an existing user
         @PostMapping("/login")
-        public ResponseEntity<String> loginUser(@RequestBody Object user) {
+        public ResponseEntity<?> loginUser(@RequestParam String email,
+                                           @RequestParam String password) {
                 try {
-                        if (user instanceof Renter) {
-                                return loginRenter((Renter) user);
-                        } else if (user instanceof Artist) {
-                                return loginArtist((Artist) user);
-                        } else {
-                                return new ResponseEntity<>("Invalid user type", HttpStatus.BAD_REQUEST);
-                        }
+                        User user = userService.loginUser(email, password);
+
+                        // Authenticate the user
+                        Authentication authentication = authenticationManager.authenticate(
+                                new UsernamePasswordAuthenticationToken(email, password)
+                        );
+
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                        return ResponseEntity.ok(user);  // No token, just return the user details
                 } catch (Exception e) {
-                        return new ResponseEntity<>("Error logging in: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+                        return ResponseEntity.badRequest().body("Error: " + e.getMessage());
                 }
         }
 
-        // Login for Renter
-        private ResponseEntity<String> loginRenter(Renter renter) {
-                return authenticateUser(renter.getUsername(), renter.getPassword(), "Renter");
-        }
-
-        // Login for Artist
-        private ResponseEntity<String> loginArtist(Artist artist) {
-                return authenticateUser(artist.getUsername(), artist.getPassword(), "Artist");
-        }
-
-        // Common login logic for both Artist and Renter
-        private ResponseEntity<String> authenticateUser(String username, String password, String userType) {
-                Object existingUser = userService.findByUsername(username);
-                if (existingUser != null) {
-                        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-                        String storedPassword = userType.equals("Renter") ? ((Renter) existingUser).getPassword() : ((Artist) existingUser).getPassword();
-                        if (passwordEncoder.matches(password, storedPassword)) {
-                                return new ResponseEntity<>(userType + " login successful", HttpStatus.OK);
-                        } else {
-                                return new ResponseEntity<>("Invalid password", HttpStatus.UNAUTHORIZED);
+        // Get current user's profile
+        @GetMapping("/profile")
+        public ResponseEntity<?> getProfile() {
+                try {
+                        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                        String email = authentication.getName();
+                        Optional<User> userOpt = userService.findUserByEmail(email);
+                        if (userOpt.isEmpty()) {
+                                return ResponseEntity.badRequest().body("User not found");
                         }
-                } else {
-                        return new ResponseEntity<>(userType + " not found", HttpStatus.NOT_FOUND);
-                }
-        }
 
-        // Get all Artists
-        @GetMapping("/artists")
-        public ResponseEntity<List<Artist>> getAllArtists() {
-                return getAllUsers(userService.getAllArtists(), "Artist");
-        }
-
-        // Get all Renters
-        @GetMapping("/renters")
-        public ResponseEntity<List<Renter>> getAllRenters() {
-                return getAllUsers(userService.getAllRenters(), "Renter");
-        }
-
-        // Generalized method to get all users (Artists or Renters)
-        private <T> ResponseEntity<List<T>> getAllUsers(List<T> users, String userType) {
-                if (users.isEmpty()) {
-                        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-                }
-                return new ResponseEntity<>(users, HttpStatus.OK);
-        }
-
-        // Get a user by username (either Artist or Renter)
-        @GetMapping("/{username}")
-        public ResponseEntity<Object> getUserByUsername(@PathVariable String username) {
-                Object user = userService.findByUsername(username);
-                if (user != null) {
-                        return new ResponseEntity<>(user, HttpStatus.OK);
-                } else {
-                        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                        return ResponseEntity.ok(userOpt.get());
+                } catch (Exception e) {
+                        return ResponseEntity.badRequest().body("Error: " + e.getMessage());
                 }
         }
 }

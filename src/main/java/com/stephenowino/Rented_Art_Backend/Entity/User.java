@@ -1,99 +1,48 @@
 package com.stephenowino.Rented_Art_Backend.Entity;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.Set;
 
-@MappedSuperclass
+@Entity
+@Table(name = "users")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class User {
+public class User {
+
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
-        @Column(nullable = false, unique = true)
-        private String username;
+        private String firstName;
 
-        @Column(nullable = false)
-        private String password;
+        private String lastName;
 
-        @Column(nullable = false)
-        private String role; // e.g., "ARTIST" or "RENTER"
+        @Column(unique = true)
+        private String email;
 
-        @Column(nullable = false)
-        private String email; // Add email
+        private String password; // Encrypted password
 
-        private String fullname; // Add fullname
+        @Enumerated(EnumType.STRING)
+        private Role role; // ENUM for Artist, Renter
 
-        private boolean subscribeToMailingList; // Add mailing list opt-in
+        private String profilePicture; // Optional profile picture
 
-        private boolean agreedToRules; // Add agreement to terms
+        private String bio; // Optional bio for artist
 
-        public Long getId() {
-                return id;
-        }
+        @OneToMany(mappedBy = "user")
+        private Set<ArtPiece> artPieces; // Art pieces created by the user (if artist)
 
-        public void setId(Long id) {
-                this.id = id;
-        }
+        @OneToMany(mappedBy = "renter")
+        private Set<Rental> rentals; // Rentals made by the user (if renter)
 
-        public String getUsername() {
-                return username;
-        }
-
-        public void setUsername(String username) {
-                this.username = username;
-        }
-
-        public String getPassword() {
-                return password;
-        }
-
-        public void setPassword(String password) {
-                this.password = password;
-        }
-
-        public String getRole() {
-                return role;
-        }
-
-        public void setRole(String role) {
-                this.role = role;
-        }
-
-        public String getEmail() {
-                return email;
-        }
-
-        public void setEmail(String email) {
-                this.email = email;
-        }
-
-        public String getFullname() {
-                return fullname;
-        }
-
-        public void setFullname(String fullname) {
-                this.fullname = fullname;
-        }
-
-        public boolean isSubscribeToMailingList() {
-                return subscribeToMailingList;
-        }
-
-        public void setSubscribeToMailingList(boolean subscribeToMailingList) {
-                this.subscribeToMailingList = subscribeToMailingList;
-        }
-
-        public boolean isAgreedToRules() {
-                return agreedToRules;
-        }
-
-        public void setAgreedToRules(boolean agreedToRules) {
-                this.agreedToRules = agreedToRules;
+        public enum Role {
+                ARTIST,
+                RENTER
         }
 }
 
