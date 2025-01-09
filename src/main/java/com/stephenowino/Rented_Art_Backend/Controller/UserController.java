@@ -1,6 +1,5 @@
 package com.stephenowino.Rented_Art_Backend.Controller;
 
-
 import com.stephenowino.Rented_Art_Backend.Entity.User;
 import com.stephenowino.Rented_Art_Backend.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +32,13 @@ public class UserController {
                                               @RequestParam String lastName,
                                               @RequestParam String email,
                                               @RequestParam String password,
+                                              @RequestParam String confirmPassword,  // Added confirmPassword
                                               @RequestParam User.Role role) {
                 try {
+                        if (!password.equals(confirmPassword)) {
+                                return ResponseEntity.badRequest().body("Error: Passwords do not match");
+                        }
+                        // Proceed to register user
                         User newUser = userService.registerUser(firstName, lastName, email, password, role);
                         return ResponseEntity.ok(newUser);
                 } catch (Exception e) {

@@ -1,4 +1,5 @@
 package com.stephenowino.Rented_Art_Backend.Entity;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,9 +41,11 @@ public class User {
         @OneToMany(mappedBy = "renter")
         private Set<Rental> rentals; // Rentals made by the user (if renter)
 
+        @Transient
+        private String confirmPassword; // Confirm password field for validation purposes
+
         public enum Role {
                 ARTIST,
                 RENTER
         }
 }
-

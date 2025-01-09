@@ -20,9 +20,14 @@ public class UserService {
 
         // Register a new user (encrypt password before saving)
         @Transactional
-        public User registerUser(String firstName, String lastName, String email, String password, User.Role role) {
+        public User registerUser(String firstName, String lastName, String email, String password, String confirmPassword, User.Role role) {
                 if (userRepository.findByEmail(email).isPresent()) {
                         throw new RuntimeException("Email is already taken");
+                }
+
+                // Check if passwords match
+                if (!password.equals(confirmPassword)) {
+                        throw new RuntimeException("Passwords do not match");
                 }
 
                 String encryptedPassword = passwordEncoder.encode(password);
