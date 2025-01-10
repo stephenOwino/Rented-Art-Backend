@@ -26,9 +26,7 @@ public class UserController {
         @Autowired
         private BCryptPasswordEncoder passwordEncoder;
 
-        /**
-         * DTO for user registration.
-         */
+        // DTO for user registration
         public static class RegisterRequest {
                 public String firstName;
                 public String lastName;
@@ -39,20 +37,13 @@ public class UserController {
                 public String bio;
         }
 
-        /**
-         * DTO for user login.
-         */
+        // DTO for user login
         public static class LoginRequest {
                 public String email;
                 public String password;
         }
 
-        /**
-         * Register a new user.
-         *
-         * @param registerRequest The request payload containing user details.
-         * @return ResponseEntity indicating success or failure.
-         */
+        // Register a new user
         @PostMapping("/register")
         public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
                 try {
@@ -78,12 +69,7 @@ public class UserController {
                 }
         }
 
-        /**
-         * Login an existing user.
-         *
-         * @param loginRequest The request payload containing login credentials.
-         * @return ResponseEntity with user details on success or an error message on failure.
-         */
+        // Login an existing user
         @PostMapping("/login")
         public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
                 try {
@@ -104,11 +90,7 @@ public class UserController {
                 }
         }
 
-        /**
-         * Get the current user's profile.
-         *
-         * @return ResponseEntity with user profile details on success or an error message on failure.
-         */
+        // Get the current user's profile
         @GetMapping("/profile")
         public ResponseEntity<?> getProfile() {
                 try {
@@ -123,6 +105,26 @@ public class UserController {
                         }
                 } catch (Exception e) {
                         return ResponseEntity.badRequest().body("An error occurred while retrieving the profile: " + e.getMessage());
+                }
+        }
+
+        // Update the current user's profile (bio and profile picture)
+        @PutMapping("/profile")
+        public ResponseEntity<?> updateProfile(@RequestParam(required = false) String bio,
+                                               @RequestParam(required = false) String profilePicture) {
+                try {
+                        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                        String email = authentication.getName();
+
+                        Optional<User> user = userService.findUserByEmail(email);
+                        if (user.isPresent()) {
+                                User updatedUser = userService.updateUserProfile(bio, profilePicture);
+                                return ResponseEntity.ok(updatedUser);
+                        } else {
+                                return ResponseEntity.badRequest().body("Profile not found for the current user.");
+                        }
+                } catch (Exception e) {
+                        return ResponseEntity.badRequest().body("An error occurred while updating the profile: " + e.getMessage());
                 }
         }
 }

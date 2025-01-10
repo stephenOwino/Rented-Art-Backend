@@ -3,6 +3,8 @@ package com.stephenowino.Rented_Art_Backend.Service;
 import com.stephenowino.Rented_Art_Backend.Entity.User;
 import com.stephenowino.Rented_Art_Backend.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,4 +74,41 @@ public class UserService {
         public Optional<User> findUserById(Long id) {
                 return userRepository.findById(id);
         }
+
+        // **Added**: Get the current logged-in user's profile
+        public User getUserProfile() {
+                String email = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+
+                // Fetch the user from the database
+                Optional<User> userOpt = userRepository.findByEmail(email);
+                if (userOpt.isEmpty()) {
+                        throw new RuntimeException("User not found");
+                }
+
+                return userOpt.get();
+        }
+
+        // **Added**: Update the current logged-in user's profile (bio and profile picture)
+        @Transactional
+        public User updateUserProfile(String bio, String profilePicture) {
+                String email = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+
+                // Fetch the user from the database
+                Optional<User> userOpt = userRepository.findByEmail(email);
+                if (userOpt.isEmpty()) {
+                        throw new RuntimeException("User not found");
+                }
+
+                User user = userOpt.get();
+
+                // Update the bio and profile picture
+                user.setBio(bio);
+                user.setProfilePicture(profilePicture); // Set to null if no profile picture is provided
+
+                return userRepository.save(user);
+        }
 }
+
+
+
+

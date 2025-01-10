@@ -33,6 +33,8 @@ public class User {
 
         private String bio; // Optional bio for artist
 
+        private String profilePicture;
+
         @OneToMany(mappedBy = "artist")
         private Set<ArtPiece> artPieces; // Art pieces created by the user (if artist)
 
@@ -126,5 +128,13 @@ public class User {
 
         public void setConfirmPassword(String confirmPassword) {
                 this.confirmPassword = confirmPassword;
+        }
+
+        public String getProfilePicture() {
+                return profilePicture;
+        }
+
+        public void setProfilePicture(String profilePicture) {
+                this.profilePicture = profilePicture;
         }
 }
