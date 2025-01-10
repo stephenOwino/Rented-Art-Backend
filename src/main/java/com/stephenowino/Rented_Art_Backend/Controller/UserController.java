@@ -35,7 +35,7 @@ public class UserController {
                 public String email;
                 public String password;
                 public String confirmPassword;
-                public User.Role role;
+                public String role;
                 public String bio;
         }
 
@@ -56,17 +56,19 @@ public class UserController {
         @PostMapping("/register")
         public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
                 try {
+                        // Validate that passwords match
                         if (!registerRequest.password.equals(registerRequest.confirmPassword)) {
                                 return ResponseEntity.badRequest().body("Error: Passwords do not match");
                         }
 
+                        // Proceed with registration, only passing the encoded password
                         User newUser = userService.registerUser(
                                 registerRequest.firstName,
                                 registerRequest.lastName,
                                 registerRequest.email,
                                 passwordEncoder.encode(registerRequest.password),
-                                registerRequest.confirmPassword,
-                                registerRequest.role
+                                registerRequest.role,
+                                User.Role.valueOf(registerRequest.bio) // Optional field
                         );
 
                         return ResponseEntity.ok("Registration successful. Welcome, " + newUser.getFirstName() + "!");
@@ -123,4 +125,3 @@ public class UserController {
                 }
         }
 }
-
