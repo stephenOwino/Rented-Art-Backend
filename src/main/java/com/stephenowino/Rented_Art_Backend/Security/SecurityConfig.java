@@ -1,5 +1,6 @@
 package com.stephenowino.Rented_Art_Backend.Security;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,12 +19,14 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.stephenowino.Rented_Art_Backend.CustomUserDetailsService; // Ensure this import is added
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig implements WebMvcConfigurer {
 
         @Autowired
-        private UserDetailsService userDetailsService;
+        private CustomUserDetailsService userDetailsService; // Inject CustomUserDetailsService directly
 
         // PasswordEncoder Bean
         @Bean
@@ -36,7 +39,7 @@ public class SecurityConfig implements WebMvcConfigurer {
         public AuthenticationProvider authenticationProvider() {
                 DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
                 provider.setPasswordEncoder(passwordEncoder());
-                provider.setUserDetailsService(userDetailsService);
+                provider.setUserDetailsService(userDetailsService); // Set the CustomUserDetailsService
                 return provider;
         }
 
@@ -46,7 +49,6 @@ public class SecurityConfig implements WebMvcConfigurer {
                 return config.getAuthenticationManager();
         }
 
-        // SecurityFilterChain Bean
         // SecurityFilterChain Bean
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -65,7 +67,6 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // Use stateful sessions for this demo
                         .build();
         }
-
 
         // CORS Configuration for allowed origins
         @Override
