@@ -61,14 +61,15 @@ public class UserController {
                                 return ResponseEntity.badRequest().body("Error: Passwords do not match");
                         }
 
-                        // Proceed with registration, only passing the encoded password
+                        // Proceed with registration
                         User newUser = userService.registerUser(
                                 registerRequest.firstName,
                                 registerRequest.lastName,
                                 registerRequest.email,
-                                passwordEncoder.encode(registerRequest.password),
-                                registerRequest.role,
-                                User.Role.valueOf(registerRequest.bio) // Optional field
+                                registerRequest.password,
+                                registerRequest.confirmPassword, // Pass confirmPassword for validation in service
+                                registerRequest.role, // role passed as string
+                                registerRequest.bio // bio passed as string
                         );
 
                         return ResponseEntity.ok("Registration successful. Welcome, " + newUser.getFirstName() + "!");

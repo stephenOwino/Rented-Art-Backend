@@ -29,7 +29,7 @@ public class User {
         private String password; // Encrypted password
 
         @Enumerated(EnumType.STRING)
-        private Role role; // ENUM for Artist, Renter
+        private Role role; // ENUM for ARTIST, RENTER
 
         private String bio; // Optional bio for artist
 

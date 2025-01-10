@@ -20,7 +20,7 @@ public class UserService {
 
         // Register a new user (encrypt password before saving)
         @Transactional
-        public User registerUser(String firstName, String lastName, String email, String password, String confirmPassword, User.Role role) {
+        public User registerUser(String firstName, String lastName, String email, String password, String confirmPassword, String role, String bio) {
                 if (userRepository.findByEmail(email).isPresent()) {
                         throw new RuntimeException("Email is already taken");
                 }
@@ -30,6 +30,9 @@ public class UserService {
                         throw new RuntimeException("Passwords do not match");
                 }
 
+                // Convert the role string to Role enum
+                User.Role userRole = User.Role.valueOf(role.toUpperCase()); // Convert to upper case to match enum
+
                 String encryptedPassword = passwordEncoder.encode(password);
 
                 User newUser = User.builder()
@@ -37,7 +40,8 @@ public class UserService {
                         .lastName(lastName)
                         .email(email)
                         .password(encryptedPassword)
-                        .role(role)
+                        .role(userRole) // Set role
+                        .bio(bio) // Set bio
                         .build();
 
                 return userRepository.save(newUser);
