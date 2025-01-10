@@ -48,4 +48,92 @@ public class User {
                 ARTIST,
                 RENTER
         }
+
+        public Long getId() {
+                return id;
+        }
+
+        public void setId(Long id) {
+                this.id = id;
+        }
+
+        public String getFirstName() {
+                return firstName;
+        }
+
+        public void setFirstName(String firstName) {
+                this.firstName = firstName;
+        }
+
+        public String getLastName() {
+                return lastName;
+        }
+
+        public void setLastName(String lastName) {
+                this.lastName = lastName;
+        }
+
+        public String getEmail() {
+                return email;
+        }
+
+        public void setEmail(String email) {
+                this.email = email;
+        }
+
+        public String getPassword() {
+                return password;
+        }
+
+        public void setPassword(String password) {
+                this.password = password;
+        }
+
+        public Role getRole() {
+                return role;
+        }
+
+        public void setRole(Role role) {
+                this.role = role;
+        }
+
+        public String getProfilePicture() {
+                return profilePicture;
+        }
+
+        public void setProfilePicture(String profilePicture) {
+                this.profilePicture = profilePicture;
+        }
+
+        public String getBio() {
+                return bio;
+        }
+
+        public void setBio(String bio) {
+                this.bio = bio;
+        }
+
+        public Set<ArtPiece> getArtPieces() {
+                return artPieces;
+        }
+
+        public void setArtPieces(Set<ArtPiece> artPieces) {
+                this.artPieces = artPieces;
+        }
+
+        public Set<Rental> getRentals() {
+                return rentals;
+        }
+
+        public void setRentals(Set<Rental> rentals) {
+                this.rentals = rentals;
+        }
+
+        public String getConfirmPassword() {
+                return confirmPassword;
+        }
+
+        public void setConfirmPassword(String confirmPassword) {
+                this.confirmPassword = confirmPassword;
+        }
 }
