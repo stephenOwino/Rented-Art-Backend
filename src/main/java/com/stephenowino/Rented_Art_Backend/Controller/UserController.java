@@ -26,61 +26,101 @@ public class UserController {
         @Autowired
         private BCryptPasswordEncoder passwordEncoder;
 
-        // Register a new user
+        /**
+         * DTO for user registration.
+         */
+        public static class RegisterRequest {
+                public String firstName;
+                public String lastName;
+                public String email;
+                public String password;
+                public String confirmPassword;
+                public User.Role role;
+                public String bio;
+        }
+
+        /**
+         * DTO for user login.
+         */
+        public static class LoginRequest {
+                public String email;
+                public String password;
+        }
+
+        /**
+         * Register a new user.
+         *
+         * @param registerRequest The request payload containing user details.
+         * @return ResponseEntity indicating success or failure.
+         */
         @PostMapping("/register")
-        public ResponseEntity<?> registerUser(@RequestParam String firstName,
-                                              @RequestParam String lastName,
-                                              @RequestParam String email,
-                                              @RequestParam String password,
-                                              @RequestParam String confirmPassword,
-                                              @RequestParam User.Role role) {
+        public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
                 try {
-                        // Check if passwords match
-                        if (!password.equals(confirmPassword)) {
+                        if (!registerRequest.password.equals(registerRequest.confirmPassword)) {
                                 return ResponseEntity.badRequest().body("Error: Passwords do not match");
                         }
-                        // Proceed to register user, passing confirmPassword
-                        User newUser = userService.registerUser(firstName, lastName, email, password, confirmPassword, role);
-                        return ResponseEntity.ok(newUser);
+
+                        User newUser = userService.registerUser(
+                                registerRequest.firstName,
+                                registerRequest.lastName,
+                                registerRequest.email,
+                                passwordEncoder.encode(registerRequest.password),
+                                registerRequest.confirmPassword,
+                                registerRequest.role
+                        );
+
+                        return ResponseEntity.ok("Registration successful. Welcome, " + newUser.getFirstName() + "!");
                 } catch (Exception e) {
                         return ResponseEntity.badRequest().body("Error: " + e.getMessage());
                 }
         }
 
-        // Login an existing user
+        /**
+         * Login an existing user.
+         *
+         * @param loginRequest The request payload containing login credentials.
+         * @return ResponseEntity with user details on success or an error message on failure.
+         */
         @PostMapping("/login")
-        public ResponseEntity<?> loginUser(@RequestParam String email,
-                                           @RequestParam String password) {
+        public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
                 try {
-                        User user = userService.loginUser(email, password);
-
-                        // Authenticate the user
                         Authentication authentication = authenticationManager.authenticate(
-                                new UsernamePasswordAuthenticationToken(email, password)
+                                new UsernamePasswordAuthenticationToken(loginRequest.email, loginRequest.password)
                         );
 
                         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                        return ResponseEntity.ok(user);  // No token, just return the user details
+                        Optional<User> user = userService.findUserByEmail(loginRequest.email);
+                        if (user.isPresent()) {
+                                return ResponseEntity.ok("Login successful. Welcome back, " + user.get().getFirstName() + "!");
+                        } else {
+                                return ResponseEntity.badRequest().body("User not found.");
+                        }
                 } catch (Exception e) {
-                        return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+                        return ResponseEntity.badRequest().body("Login failed: Invalid email or password.");
                 }
         }
 
-        // Get current user's profile
+        /**
+         * Get the current user's profile.
+         *
+         * @return ResponseEntity with user profile details on success or an error message on failure.
+         */
         @GetMapping("/profile")
         public ResponseEntity<?> getProfile() {
                 try {
                         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
                         String email = authentication.getName();
-                        Optional<User> userOpt = userService.findUserByEmail(email);
-                        if (userOpt.isEmpty()) {
-                                return ResponseEntity.badRequest().body("User not found");
-                        }
 
-                        return ResponseEntity.ok(userOpt.get());
+                        Optional<User> user = userService.findUserByEmail(email);
+                        if (user.isPresent()) {
+                                return ResponseEntity.ok(user.get());
+                        } else {
+                                return ResponseEntity.badRequest().body("Profile not found for the current user.");
+                        }
                 } catch (Exception e) {
-                        return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+                        return ResponseEntity.badRequest().body("An error occurred while retrieving the profile: " + e.getMessage());
                 }
         }
 }
+

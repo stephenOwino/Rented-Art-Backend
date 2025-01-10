@@ -31,15 +31,13 @@ public class User {
         @Enumerated(EnumType.STRING)
         private Role role; // ENUM for Artist, Renter
 
-        private String profilePicture; // Optional profile picture
-
         private String bio; // Optional bio for artist
 
-        @OneToMany(mappedBy = "artist")  // Corrected mapping
+        @OneToMany(mappedBy = "artist")
         private Set<ArtPiece> artPieces; // Art pieces created by the user (if artist)
 
-        @OneToMany(mappedBy = "renter")  // Rentals made by the user (if renter)
-        private Set<Rental> rentals;
+        @OneToMany(mappedBy = "renter")
+        private Set<Rental> rentals; // Rentals made by the user (if renter)
 
         @Transient
         private String confirmPassword; // Confirm password field for validation purposes
@@ -49,6 +47,7 @@ public class User {
                 RENTER
         }
 
+        // Getters and Setters
         public Long getId() {
                 return id;
         }
@@ -95,14 +94,6 @@ public class User {
 
         public void setRole(Role role) {
                 this.role = role;
-        }
-
-        public String getProfilePicture() {
-                return profilePicture;
-        }
-
-        public void setProfilePicture(String profilePicture) {
-                this.profilePicture = profilePicture;
         }
 
         public String getBio() {
