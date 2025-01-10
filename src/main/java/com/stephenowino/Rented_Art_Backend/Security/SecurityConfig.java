@@ -55,7 +55,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                 return http
                         .csrf(csrf -> csrf.disable()) // Disable CSRF for REST APIs
                         .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/", "/api/users/register", "/api/users/login") // Public homepage, registration, and login endpoints
+                                .requestMatchers("/api/users/register/**", "/api/users/login") // Public homepage, registration, and login endpoints
                                 .permitAll()
                                 .requestMatchers("/api/users/profile") // Profile endpoint: only accessible by authenticated users
                                 .authenticated()
@@ -77,4 +77,5 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .allowedHeaders("*")
                         .allowCredentials(true); // Allow credentials like cookies
         }
+}  }
 }
