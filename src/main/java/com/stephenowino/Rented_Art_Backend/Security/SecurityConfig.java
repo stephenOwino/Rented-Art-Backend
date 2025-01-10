@@ -77,5 +77,4 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .allowedHeaders("*")
                         .allowCredentials(true); // Allow credentials like cookies
         }
-}  }
 }
