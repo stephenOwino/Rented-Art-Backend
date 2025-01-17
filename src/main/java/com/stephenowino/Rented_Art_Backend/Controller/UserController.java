@@ -120,4 +120,9 @@ public class UserController {
                         return ResponseEntity.badRequest().body("An error occurred while updating the profile: " + e.getMessage());
                 }
         }
+        @PostMapping("/logout")
+        public ResponseEntity<String> logout() {
+                userService.logoutUser();
+                return ResponseEntity.ok("User successfully logged out");
+        }
 }

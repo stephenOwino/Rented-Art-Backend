@@ -102,5 +102,10 @@ public class UserService {
 
                 return userRepository.save(user);
         }
+        // Invalidate the current session or token (if applicable)
+        public void logoutUser() {
+                SecurityContextHolder.clearContext();
+        }
+
 }
 
