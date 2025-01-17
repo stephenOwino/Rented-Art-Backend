@@ -22,14 +22,9 @@ public class UserService {
 
         // Register a new user (encrypt password before saving)
         @Transactional
-        public User registerUser(String firstName, String lastName, String email, String password, String confirmPassword, String role, String bio) {
+        public User registerUser(String firstName, String lastName, String email, String password, String role, String bio) {
                 if (userRepository.findByEmail(email).isPresent()) {
                         throw new RuntimeException("Email is already taken");
-                }
-
-                // Check if passwords match
-                if (!password.equals(confirmPassword)) {
-                        throw new RuntimeException("Passwords do not match");
                 }
 
                 // Convert the role string to Role enum
@@ -75,7 +70,7 @@ public class UserService {
                 return userRepository.findById(id);
         }
 
-        // **Added**: Get the current logged-in user's profile
+        // Get the current logged-in user's profile
         public User getUserProfile() {
                 String email = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
 
@@ -88,7 +83,7 @@ public class UserService {
                 return userOpt.get();
         }
 
-        // **Added**: Update the current logged-in user's profile (bio and profile picture)
+        // Update the current logged-in user's profile (bio and profile picture)
         @Transactional
         public User updateUserProfile(String bio, String profilePicture) {
                 String email = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();

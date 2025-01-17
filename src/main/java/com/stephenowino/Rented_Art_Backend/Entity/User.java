@@ -41,9 +41,6 @@ public class User {
         @OneToMany(mappedBy = "renter")
         private Set<Rental> rentals; // Rentals made by the user (if renter)
 
-        @Transient
-        private String confirmPassword; // Confirm password field for validation purposes
-
         public enum Role {
                 ARTIST,
                 RENTER
@@ -122,13 +119,6 @@ public class User {
                 this.rentals = rentals;
         }
 
-        public String getConfirmPassword() {
-                return confirmPassword;
-        }
-
-        public void setConfirmPassword(String confirmPassword) {
-                this.confirmPassword = confirmPassword;
-        }
 
         public String getProfilePicture() {
                 return profilePicture;
