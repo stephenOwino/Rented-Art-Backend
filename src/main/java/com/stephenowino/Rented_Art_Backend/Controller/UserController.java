@@ -32,7 +32,6 @@ public class UserController {
                 public String lastName;
                 public String email;
                 public String password;
-                public String confirmPassword;
                 public String role;
                 public String bio;
         }
@@ -47,18 +46,12 @@ public class UserController {
         @PostMapping("/register")
         public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
                 try {
-                        // Validate that passwords match
-                        if (!registerRequest.password.equals(registerRequest.confirmPassword)) {
-                                return ResponseEntity.badRequest().body("Error: Passwords do not match");
-                        }
-
                         // Proceed with registration
                         User newUser = userService.registerUser(
                                 registerRequest.firstName,
                                 registerRequest.lastName,
                                 registerRequest.email,
                                 registerRequest.password,
-                                registerRequest.confirmPassword, // Pass confirmPassword for validation in service
                                 registerRequest.role, // role passed as string
                                 registerRequest.bio // bio passed as string
                         );
