@@ -18,7 +18,7 @@ public class UserService {
         private UserRepository userRepository;
 
         @Autowired
-        private PasswordEncoder passwordEncoder; // Use PasswordEncoder instead of BCryptPasswordEncoder
+        private PasswordEncoder passwordEncoder;
 
         // Register a new user (encrypt password before saving)
         @Transactional
@@ -28,7 +28,7 @@ public class UserService {
                 }
 
                 // Convert the role string to Role enum
-                User.Role userRole = User.Role.valueOf(role.toUpperCase()); // Convert to upper case to match enum
+                User.Role userRole = User.Role.valueOf(role.toUpperCase()); /* Convert to upper case to match enum*/
 
                 String encryptedPassword = passwordEncoder.encode(password);
 
@@ -98,7 +98,6 @@ public class UserService {
 
                 // Update the bio and profile picture
                 user.setBio(bio);
-                user.setProfilePicture(profilePicture); // Set to null if no profile picture is provided
 
                 return userRepository.save(user);
         }

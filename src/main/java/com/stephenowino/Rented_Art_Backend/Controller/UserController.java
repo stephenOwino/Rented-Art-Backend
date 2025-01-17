@@ -66,22 +66,27 @@ public class UserController {
         @PostMapping("/login")
         public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
                 try {
+                        // Attempt authentication using the provided email and password
                         Authentication authentication = authenticationManager.authenticate(
                                 new UsernamePasswordAuthenticationToken(loginRequest.email, loginRequest.password)
                         );
 
+                        // Set authentication context
                         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+                        // Check if the user exists
                         Optional<User> user = userService.findUserByEmail(loginRequest.email);
                         if (user.isPresent()) {
                                 return ResponseEntity.ok("Login successful. Welcome back, " + user.get().getFirstName() + "!");
                         } else {
-                                return ResponseEntity.badRequest().body("User not found.");
+                                // User is not found, prompt them to register
+                                return ResponseEntity.badRequest().body("User with email '" + loginRequest.email + "' not found. Please register first.");
                         }
                 } catch (Exception e) {
                         return ResponseEntity.badRequest().body("Login failed: Invalid email or password.");
                 }
         }
+
 
         // Get the current user's profile
         @GetMapping("/profile")
