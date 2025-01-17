@@ -2,6 +2,7 @@ package com.stephenowino.Rented_Art_Backend.Service;
 
 import com.stephenowino.Rented_Art_Backend.Entity.User;
 import com.stephenowino.Rented_Art_Backend.Repository.UserRepository;
+import com.stephenowino.Rented_Art_Backend.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -48,7 +49,7 @@ public class UserService {
         public User loginUser(String email, String password) {
                 Optional<User> userOpt = userRepository.findByEmail(email);
                 if (userOpt.isEmpty()) {
-                        throw new RuntimeException("User not found");
+                        throw new UserNotFoundException("User not found with email: " + email);
                 }
 
                 User user = userOpt.get();
@@ -77,7 +78,7 @@ public class UserService {
                 // Fetch the user from the database
                 Optional<User> userOpt = userRepository.findByEmail(email);
                 if (userOpt.isEmpty()) {
-                        throw new RuntimeException("User not found");
+                        throw new UserNotFoundException("User not found with email: " + email);
                 }
 
                 return userOpt.get();
@@ -91,7 +92,7 @@ public class UserService {
                 // Fetch the user from the database
                 Optional<User> userOpt = userRepository.findByEmail(email);
                 if (userOpt.isEmpty()) {
-                        throw new RuntimeException("User not found");
+                        throw new UserNotFoundException("User not found with email: " + email);
                 }
 
                 User user = userOpt.get();
@@ -101,10 +102,9 @@ public class UserService {
 
                 return userRepository.save(user);
         }
+
         // Invalidate the current session or token (if applicable)
         public void logoutUser() {
                 SecurityContextHolder.clearContext();
         }
-
 }
-
