@@ -87,6 +87,7 @@ public class UserController {
                 }
         }
 
+
         // Get the current user's profile
         @GetMapping("/profile")
         public ResponseEntity<?> getProfile() {
@@ -105,7 +106,25 @@ public class UserController {
                 }
         }
 
-        // Logout a user
+        // Update the current user's profile (bio and profile picture)
+        @PutMapping("/profile")
+        public ResponseEntity<?> updateProfile(@RequestParam(required = false) String bio,
+                                               @RequestParam(required = false) String profilePicture) {
+                try {
+                        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                        String email = authentication.getName();
+
+                        Optional<User> user = userService.findUserByEmail(email);
+                        if (user.isPresent()) {
+                                User updatedUser = userService.updateUserProfile(bio, profilePicture);
+                                return ResponseEntity.ok(updatedUser);
+                        } else {
+                                return ResponseEntity.badRequest().body("Profile not found for the current user.");
+                        }
+                } catch (Exception e) {
+                        return ResponseEntity.badRequest().body("An error occurred while updating the profile: " + e.getMessage());
+                }
+        }
         @PostMapping("/logout")
         public ResponseEntity<String> logout() {
                 userService.logoutUser();

@@ -24,8 +24,9 @@ public class PayPalController {
 
         private final PayPalService service;
 
+        // Set the base URL dynamically from application.properties or directly in code
         @Value("${app.baseUrl}")
-        private String baseUrl = "https://rented-art-server.onrender.com"; // Update base URL as needed
+        private String baseUrl = "https://rented-art-server.onrender.com"; // Set your production URL here
 
         public PayPalController(PayPalService service) {
                 this.service = service;
@@ -33,7 +34,7 @@ public class PayPalController {
 
         @PostMapping("/")
         public String showHomePage() {
-                return "home"; // Render the homepage (could be an actual frontend page)
+                return "home"; // This will render the home page (may need to replace with a real frontend page)
         }
 
         @PostMapping("/pay")
@@ -56,7 +57,7 @@ public class PayPalController {
                 } catch (PayPalRESTException e) {
                         logger.error("Error during payment creation: {}", e.getMessage(), e);
                 }
-                return "redirect:/"; // In case of failure, redirect to homepage
+                return "redirect:/"; // In case of failure, redirect back to the homepage
         }
 
         private String getApprovalUrl(Payment payment) {
@@ -65,12 +66,12 @@ public class PayPalController {
                                 return link.getHref();
                         }
                 }
-                return null; // No approval URL found
+                return null; // If no approval URL found, return null
         }
 
         @GetMapping(value = CANCEL_URL)
         public String cancelPay() {
-                return "cancel"; // Redirect to cancel page
+                return "cancel"; // This would be your "cancel" page URL to show to the user
         }
 
         @GetMapping(value = SUCCESS_URL)
@@ -80,13 +81,13 @@ public class PayPalController {
                         logger.info("Payment details: {}", payment.toJSON());
 
                         if ("approved".equals(payment.getState())) {
-                                return "success"; // Redirect to success page if payment is approved
+                                return "success"; // Show success page if payment is approved
                         } else {
                                 logger.warn("Payment was not approved. State: {}", payment.getState());
                         }
                 } catch (PayPalRESTException e) {
                         logger.error("Error during payment execution: {}", e.getMessage(), e);
                 }
-                return "redirect:/"; // Redirect to homepage if payment fails
+                return "redirect:/"; // If payment fails, redirect back to the homepage
         }
 }
