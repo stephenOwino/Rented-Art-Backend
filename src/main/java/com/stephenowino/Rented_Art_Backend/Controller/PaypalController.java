@@ -7,10 +7,10 @@ import com.stephenowino.Rented_Art_Backend.Order;
 import com.stephenowino.Rented_Art_Backend.Service.PayPalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class PaypalController {
@@ -27,21 +27,26 @@ public class PaypalController {
         }
 
         @PostMapping("/pay")
-        public String payment(@ModelAttribute("order") Order order) {
+        @ResponseBody
+        public Map<String, String> payment(@RequestBody Order order) {
+                Map<String, String> response = new HashMap<>();
                 try {
                         Payment payment = service.createPayment(order.getPrice(), order.getCurrency(), order.getMethod(),
                                 order.getIntent(), order.getDescription(), "http://localhost:9090/" + CANCEL_URL,
                                 "http://localhost:9090/" + SUCCESS_URL);
                         for (Links link : payment.getLinks()) {
                                 if (link.getRel().equals("approval_url")) {
-                                        return "redirect:" + link.getHref(); // Redirects to the PayPal approval URL
+                                        response.put("redirectUrl", link.getHref());
+                                        return response;
                                 }
                         }
                 } catch (PayPalRESTException e) {
-                        e.printStackTrace(); // Log the exception
+                        e.printStackTrace();
+                        response.put("error", "Payment initiation failed");
                 }
-                return "redirect:/"; // Redirects to the home page if there's an error
+                return response;
         }
+
 
         @GetMapping(value = CANCEL_URL)
         public String cancelPay() {
