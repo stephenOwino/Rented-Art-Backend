@@ -6,68 +6,81 @@ import com.paypal.base.rest.PayPalRESTException;
 import com.stephenowino.Rented_Art_Backend.Order;
 import com.stephenowino.Rented_Art_Backend.Service.PayPalService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Controller
+@RestController
+@RequestMapping("/paypal")
 public class PaypalController {
 
         @Autowired
-        PayPalService service;
+        private PayPalService service;
 
-        public static final String SUCCESS_URL = "pay/success";
-        public static final String CANCEL_URL = "pay/cancel";
-
-        @GetMapping("/")
-        public String home() {
-                return "home"; // Redirects to the home page
-        }
+        private static final String BASE_URL = "https://rented-art.onrender.com";
 
         @PostMapping("/pay")
-        @ResponseBody
-        public Map<String, String> payment(@RequestBody Order order) {
+        public ResponseEntity<?> initiatePayment(@RequestBody Order order) {
                 Map<String, String> response = new HashMap<>();
                 try {
-                        Payment payment = service.createPayment(order.getPrice(), order.getCurrency(), order.getMethod(),
-                                order.getIntent(), order.getDescription(), "http://localhost:9090/" + CANCEL_URL,
-                                "http://localhost:9090/" + SUCCESS_URL);
+                        Payment payment = service.createPayment(
+                                order.getPrice(),
+                                order.getCurrency(),
+                                order.getMethod(),
+                                order.getIntent(),
+                                order.getDescription(),
+                                BASE_URL + "/paypal/cancel",
+                                BASE_URL + "/paypal/success"
+                        );
+
                         for (Links link : payment.getLinks()) {
-                                if (link.getRel().equals("approval_url")) {
+                                if ("approval_url".equals(link.getRel())) {
                                         response.put("redirectUrl", link.getHref());
-                                        return response;
+                                        return ResponseEntity.ok(response);
                                 }
                         }
                 } catch (PayPalRESTException e) {
                         e.printStackTrace();
-                        response.put("error", "Payment initiation failed");
+                        response.put("error", "Payment initiation failed: " + e.getMessage());
+                        return ResponseEntity.badRequest().body(response);
                 }
-                return response;
+
+                response.put("error", "Approval URL not found");
+                return ResponseEntity.badRequest().body(response);
         }
 
-
-        @GetMapping(value = CANCEL_URL)
-        public String cancelPay() {
-                return "cancel"; // Redirects to the cancel page if payment is canceled
+        @GetMapping("/cancel")
+        public ResponseEntity<?> cancelPayment() {
+                Map<String, String> response = new HashMap<>();
+                response.put("status", "error");
+                response.put("message", "Payment canceled by the user");
+                return ResponseEntity.ok(response);
         }
 
-        @GetMapping(value = SUCCESS_URL)
-        public String successPay(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId) {
+        @GetMapping("/success")
+        public ResponseEntity<?> successPayment(@RequestParam("paymentId") String paymentId,
+                                                @RequestParam("PayerID") String payerId) {
+                Map<String, String> response = new HashMap<>();
                 try {
                         Payment payment = service.executePayment(paymentId, payerId);
-                        System.out.println(payment.toJSON()); // Log the payment details
-                        if (payment.getState().equals("approved")) {
-                                return "success"; // Redirects to success page if payment is approved
+                        if ("approved".equals(payment.getState())) {
+                                response.put("status", "success");
+                                response.put("message", "Payment approved");
+                                response.put("paymentDetails", payment.toJSON());
+                                return ResponseEntity.ok(response);
                         }
                 } catch (PayPalRESTException e) {
-                        System.out.println(e.getMessage()); // Log the exception
+                        response.put("status", "error");
+                        response.put("message", "Payment execution failed: " + e.getMessage());
+                        return ResponseEntity.badRequest().body(response);
                 }
-                return "redirect:/"; // Redirects to the home page if payment fails
+
+                response.put("status", "error");
+                response.put("message", "Payment not approved");
+                return ResponseEntity.badRequest().body(response);
         }
 }
-
-
 
 
