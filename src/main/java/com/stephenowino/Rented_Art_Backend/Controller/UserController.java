@@ -26,7 +26,6 @@ public class UserController {
         @Autowired
         private BCryptPasswordEncoder passwordEncoder;
 
-        // DTO for user registration
         public static class RegisterRequest {
                 public String firstName;
                 public String lastName;
@@ -36,24 +35,21 @@ public class UserController {
                 public String bio;
         }
 
-        // DTO for user login
         public static class LoginRequest {
                 public String email;
                 public String password;
         }
 
-        // Register a new user
         @PostMapping("/register")
         public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
                 try {
-                        // Proceed with registration
                         User newUser = userService.registerUser(
                                 registerRequest.firstName,
                                 registerRequest.lastName,
                                 registerRequest.email,
                                 registerRequest.password,
-                                registerRequest.role, // role passed as string
-                                registerRequest.bio // bio passed as string
+                                registerRequest.role,
+                                registerRequest.bio
                         );
 
                         return ResponseEntity.ok("Registration successful. Welcome, " + newUser.getFirstName() + "!");
@@ -62,24 +58,19 @@ public class UserController {
                 }
         }
 
-        // Login an existing user
         @PostMapping("/login")
         public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
                 try {
-                        // Attempt authentication using the provided email and password
                         Authentication authentication = authenticationManager.authenticate(
                                 new UsernamePasswordAuthenticationToken(loginRequest.email, loginRequest.password)
                         );
 
-                        // Set authentication context
                         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                        // Check if the user exists
                         Optional<User> user = userService.findUserByEmail(loginRequest.email);
                         if (user.isPresent()) {
                                 return ResponseEntity.ok("Login successful. Welcome back, " + user.get().getFirstName() + "!");
                         } else {
-                                // User is not found, prompt them to register
                                 return ResponseEntity.badRequest().body("User with email '" + loginRequest.email + "' not found. Please register first.");
                         }
                 } catch (Exception e) {
@@ -87,8 +78,6 @@ public class UserController {
                 }
         }
 
-
-        // Get the current user's profile
         @GetMapping("/profile")
         public ResponseEntity<?> getProfile() {
                 try {
@@ -106,25 +95,12 @@ public class UserController {
                 }
         }
 
-        // Update the current user's profile (bio and profile picture)
         @PutMapping("/profile")
         public ResponseEntity<?> updateProfile(@RequestParam(required = false) String bio,
                                                @RequestParam(required = false) String profilePicture) {
-                try {
-                        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                        String email = authentication.getName();
-
-                        Optional<User> user = userService.findUserByEmail(email);
-                        if (user.isPresent()) {
-                                User updatedUser = userService.updateUserProfile(bio, profilePicture);
-                                return ResponseEntity.ok(updatedUser);
-                        } else {
-                                return ResponseEntity.badRequest().body("Profile not found for the current user.");
-                        }
-                } catch (Exception e) {
-                        return ResponseEntity.badRequest().body("An error occurred while updating the profile: " + e.getMessage());
-                }
+                return ResponseEntity.badRequest().body("Profile update is not implemented yet.");
         }
+
         @PostMapping("/logout")
         public ResponseEntity<String> logout() {
                 userService.logoutUser();
