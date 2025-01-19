@@ -2,10 +2,10 @@ package com.stephenowino.Rented_Art_Backend.Service;
 
 import com.stephenowino.Rented_Art_Backend.Entity.User;
 import com.stephenowino.Rented_Art_Backend.Repository.UserRepository;
+import com.stephenowino.Rented_Art_Backend.Entity.Role;  // Make sure this import is added
 import com.stephenowino.Rented_Art_Backend.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,8 +28,13 @@ public class UserService {
                         throw new RuntimeException("Email is already taken");
                 }
 
-                // Convert the role string to Role enum
-                User.Role userRole = User.Role.valueOf(role.toUpperCase()); /* Convert to upper case to match enum*/
+                // Convert the role string to Role enum (ensure this line correctly references Role enum)
+                Role userRole;
+                try {
+                        userRole = Role.valueOf(role.toUpperCase()); // Correct reference to Role enum
+                } catch (IllegalArgumentException e) {
+                        throw new RuntimeException("Invalid role: " + role);
+                }
 
                 String encryptedPassword = passwordEncoder.encode(password);
 
@@ -69,38 +74,6 @@ public class UserService {
         // Find a user by ID
         public Optional<User> findUserById(Long id) {
                 return userRepository.findById(id);
-        }
-
-        // Get the current logged-in user's profile
-        public User getUserProfile() {
-                String email = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-
-                // Fetch the user from the database
-                Optional<User> userOpt = userRepository.findByEmail(email);
-                if (userOpt.isEmpty()) {
-                        throw new UserNotFoundException("User not found with email: " + email);
-                }
-
-                return userOpt.get();
-        }
-
-        // Update the current logged-in user's profile (bio and profile picture)
-        @Transactional
-        public User updateUserProfile(String bio, String profilePicture) {
-                String email = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-
-                // Fetch the user from the database
-                Optional<User> userOpt = userRepository.findByEmail(email);
-                if (userOpt.isEmpty()) {
-                        throw new UserNotFoundException("User not found with email: " + email);
-                }
-
-                User user = userOpt.get();
-
-                // Update the bio and profile picture
-                user.setBio(bio);
-
-                return userRepository.save(user);
         }
 
         // Invalidate the current session or token (if applicable)
