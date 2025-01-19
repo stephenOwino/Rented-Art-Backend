@@ -14,12 +14,13 @@ import java.util.List;
 @Service
 public class PayPalService {
 
-
         private final APIContext apiContext;
 
-        public PayPalService( APIContext apiContext) {
+        @Autowired
+        public PayPalService(APIContext apiContext) {
                 this.apiContext = apiContext;
         }
+
         public Payment createPayment(
                 Double total,
                 String currency,
@@ -28,26 +29,27 @@ public class PayPalService {
                 String description,
                 String cancelUrl,
                 String successUrl
-        ) throws PayPalRESTException{
+        ) throws PayPalRESTException {
                 Amount amount = new Amount();
                 amount.setCurrency(currency);
                 total = new BigDecimal(total).setScale(2, RoundingMode.HALF_UP).doubleValue();
-                amount.setTotal(String.format("%.2f",total));
+                amount.setTotal(String.format("%.2f", total));
 
                 Transaction transaction = new Transaction();
                 transaction.setDescription(description);
                 transaction.setAmount(amount);
 
-                List<Transaction>transactions = new ArrayList<>();
+                List<Transaction> transactions = new ArrayList<>();
                 transactions.add(transaction);
 
                 Payer payer = new Payer();
-                payer.setPaymentMethod(method.toString());
+                payer.setPaymentMethod(method);
 
                 Payment payment = new Payment();
-                payment.setIntent(intent.toString());
+                payment.setIntent(intent);
                 payment.setPayer(payer);
                 payment.setTransactions(transactions);
+
                 RedirectUrls redirectUrls = new RedirectUrls();
                 redirectUrls.setCancelUrl(cancelUrl);
                 redirectUrls.setReturnUrl(successUrl);
@@ -55,12 +57,12 @@ public class PayPalService {
 
                 return payment.create(apiContext);
         }
-        public Payment executePayment(String paymentId,String payerId)throws PayPalRESTException{
+
+        public Payment executePayment(String paymentId, String payerId) throws PayPalRESTException {
                 Payment payment = new Payment();
                 payment.setId(paymentId);
                 PaymentExecution paymentExecute = new PaymentExecution();
                 paymentExecute.setPayerId(payerId);
-                return payment.execute(apiContext,paymentExecute);
-
+                return payment.execute(apiContext, paymentExecute);
         }
 }
