@@ -6,11 +6,7 @@ import com.paypal.base.rest.PayPalRESTException;
 import com.stephenowino.Rented_Art_Backend.Order;
 import com.stephenowino.Rented_Art_Backend.Service.PayPalService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,63 +21,48 @@ public class PaypalController {
         public static final String SUCCESS_URL = "pay/success";
         public static final String CANCEL_URL = "pay/cancel";
 
-        @Value("${paypal.success-url}")
-        private String successUrl;
+        @GetMapping("/")
+        public String home() {
+                return "home"; // Redirects to the home page
+        }
 
-        @Value("${paypal.cancel-url}")
-        private String cancelUrl;
-
-        // Payment initiation endpoint
         @PostMapping("/pay")
-        public String payment(@Validated @ModelAttribute("order") Order order, BindingResult result, Model model) {
-                if (result.hasErrors()) {
-                        model.addAttribute("error", "Invalid order details. Please check the form and try again.");
-                        return "error"; // Return error page if validation fails
-                }
-
+        public String payment(@ModelAttribute("order") Order order) {
                 try {
                         Payment payment = service.createPayment(order.getPrice(), order.getCurrency(), order.getMethod(),
-                                order.getIntent(), order.getDescription(), cancelUrl, successUrl);
-
+                                order.getIntent(), order.getDescription(), "http://localhost:9090/" + CANCEL_URL,
+                                "http://localhost:9090/" + SUCCESS_URL);
                         for (Links link : payment.getLinks()) {
                                 if (link.getRel().equals("approval_url")) {
-                                        return "redirect:" + link.getHref(); // Redirect to PayPal approval URL
+                                        return "redirect:" + link.getHref(); // Redirects to the PayPal approval URL
                                 }
                         }
                 } catch (PayPalRESTException e) {
-                        e.printStackTrace();
-                        model.addAttribute("error", "There was an error processing your payment. Please try again later.");
-                        return "error"; // Redirect to error page if payment creation fails
+                        e.printStackTrace(); // Log the exception
                 }
-
-                return "redirect:/"; // Redirect to home page if no approval URL is found
+                return "redirect:/"; // Redirects to the home page if there's an error
         }
 
-        // Payment cancellation endpoint
         @GetMapping(value = CANCEL_URL)
-        public String cancelPay(Model model) {
-                model.addAttribute("message", "Your payment was canceled. Please try again if you wish.");
-                return "cancel"; // Redirects to cancel page if payment is canceled
+        public String cancelPay() {
+                return "cancel"; // Redirects to the cancel page if payment is canceled
         }
 
-        // Payment success endpoint
         @GetMapping(value = SUCCESS_URL)
-        public String successPay(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId, Model model) {
+        public String successPay(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId) {
                 try {
                         Payment payment = service.executePayment(paymentId, payerId);
-                        System.out.println(payment.toJSON()); // Log payment details
-
+                        System.out.println(payment.toJSON()); // Log the payment details
                         if (payment.getState().equals("approved")) {
-                                model.addAttribute("message", "Payment successful! Thank you for your purchase.");
                                 return "success"; // Redirects to success page if payment is approved
-                        } else {
-                                model.addAttribute("message", "Payment was not approved. Please try again.");
-                                return "error"; // Return error page if payment was not approved
                         }
                 } catch (PayPalRESTException e) {
                         System.out.println(e.getMessage()); // Log the exception
-                        model.addAttribute("error", "An error occurred while processing your payment. Please try again later.");
-                        return "error"; // Redirects to error page if payment execution fails
                 }
+                return "redirect:/"; // Redirects to the home page if payment fails
         }
 }
+
+
+
+
