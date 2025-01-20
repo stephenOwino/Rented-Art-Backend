@@ -4,8 +4,11 @@ import com.stephenowino.Rented_Art_Backend.Entity.ArtPiece;
 import com.stephenowino.Rented_Art_Backend.Entity.Rental;
 import com.stephenowino.Rented_Art_Backend.Entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
+@Repository
 public interface RentalRepository extends JpaRepository<Rental, Long> {
 
         // Find all rentals by a specific renter
