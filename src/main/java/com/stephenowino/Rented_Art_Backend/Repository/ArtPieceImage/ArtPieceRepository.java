@@ -22,5 +22,8 @@ public interface ArtPieceRepository extends JpaRepository<ArtPiece, Long> {
         Long countByArtistAndTitle(String artist, String title); // Adjusted for 'artist' and 'title'
 
         Long countByArtistAndName(String artist, String name);
+
+        List<ArtPiece> findByArtPieceId(Long artPieceId);
+
 }
 
