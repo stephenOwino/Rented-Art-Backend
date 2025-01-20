@@ -13,9 +13,9 @@ public interface IArtPieceService {
         void deleteArtPieceById(Long id);
         ArtPiece updateArtPiece(ArtPieceUpdateRequest artPiece, Long artPieceId);
         List<ArtPiece> getAllArtPieces();
-        List<ArtPiece> getArtPiecesByCategory(String category);
+//        List<ArtPiece> getArtPiecesByCategory(String category);
         List<ArtPiece> getArtPiecesByArtist(String artist);
-        List<ArtPiece> getArtPiecesByCategoryAndArtist(String category, String artist);
+//        List<ArtPiece> getArtPiecesByCategoryAndArtist(String category, String artist);
         List<ArtPiece> getArtPiecesByName(String name);
         List<ArtPiece> getArtPiecesByArtistAndName(String artist, String name);
         Long countArtPiecesByArtistAndName(String artist, String name);

@@ -54,11 +54,11 @@ public class ArtPieceService implements IArtPieceService {
         public List<ArtPiece> getAllArtPieces() {
                 return artPieceRepository.findAll();
         }
-
-        @Override
-        public List<ArtPiece> getArtPiecesByCategory(String category) {
-                return List.of();
-        }
+//
+//        @Override
+//        public List<ArtPiece> getArtPiecesByCategory(String category) {
+//                return List.of();
+//        }
 
 //        @Override
 //        public List<ArtPiece> getArtPiecesByCategory(String category) {
@@ -71,10 +71,10 @@ public class ArtPieceService implements IArtPieceService {
                 return artPieceRepository.findByArtist(artist);
         }
 
-        @Override
-        public List<ArtPiece> getArtPiecesByCategoryAndArtist(String category, String artist) {
-                return artPieceRepository.findByCategoryAndArtist(category, artist);
-        }
+//        @Override
+//        public List<ArtPiece> getArtPiecesByCategoryAndArtist(String category, String artist) {
+//                return artPieceRepository.findByCategoryAndArtist(category, artist);
+//        }
 
         @Override
         public List<ArtPiece> getArtPiecesByName(String name) {

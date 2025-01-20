@@ -9,11 +9,11 @@ import java.util.List;
 @Repository
 public interface ArtPieceRepository extends JpaRepository<ArtPiece, Long> {
 
-        List<ArtPiece> findByCategoryName(String category);
+//        List<ArtPiece> findByCategoryName(String category);
 
         List<ArtPiece> findByArtist(String artist); // Renamed from 'brand' to 'artist'
 
-        List<ArtPiece> findByCategoryNameAndArtist(String category, String artist); // Adjusted for 'artist'
+//        List<ArtPiece> findByCategoryNameAndArtist(String category, String artist); // Adjusted for 'artist'
 
         List<ArtPiece> findByTitle(String title); // Renamed from 'name' to 'title'
 
