@@ -1,77 +1,84 @@
 package com.stephenowino.Rented_Art_Backend.Controller;
 
+import com.stephenowino.Rented_Art_Backend.Dto.ArtPieceDto.ArtPieceDto;
 import com.stephenowino.Rented_Art_Backend.Entity.ArtPiece;
-import com.stephenowino.Rented_Art_Backend.Entity.User;
-import com.stephenowino.Rented_Art_Backend.Service.ArtPieceService;
-import com.stephenowino.Rented_Art_Backend.Service.UserService;
+import com.stephenowino.Rented_Art_Backend.Request.ArtPieceUpdateRequest;
+import com.stephenowino.Rented_Art_Backend.Response.ApiResponse;
+import com.stephenowino.Rented_Art_Backend.Service.Artpiece.AddArtPieceRequest;
+import com.stephenowino.Rented_Art_Backend.Service.Artpiece.IArtPieceService;
+import com.stephenowino.Rented_Art_Backend.exception.ResourceNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
+@RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/artpieces")
+@RequestMapping("${api.prefix}/artpieces")
 public class ArtPieceController {
+        private final IArtPieceService artPieceService;
 
-
-        private final ArtPieceService artPieceService;
-
-        private final UserService userService;
-
-        public ArtPieceController(ArtPieceService artPieceService, UserService userService) {
-                this.artPieceService = artPieceService;
-                this.userService = userService;
+        @GetMapping("/all")
+        public ResponseEntity<ApiResponse> getAllArtPieces() {
+                List<ArtPiece> artPieces = artPieceService.getAllArtPieces();
+                List<ArtPieceDto> convertedArtPieces = artPieceService.getConvertedArtPieces(artPieces);
+                return ResponseEntity.ok(new ApiResponse("success", convertedArtPieces));
         }
 
-        // Create a new art piece
-        @PostMapping("/create")
-        public ResponseEntity<?> createArtPiece(@RequestParam String title,
-                                                @RequestParam String description,
-                                                @RequestParam String imageUrl,
-                                                @RequestParam Double price,
-                                                @RequestParam Long artistId) {
+        @GetMapping("/artpiece/{artPieceId}")
+        public ResponseEntity<ApiResponse> getArtPieceById(@PathVariable Long artPieceId) {
                 try {
-                        User artist = userService.findUserById(artistId)
-                                .orElseThrow(() -> new RuntimeException("Artist not found"));
-                        ArtPiece newArtPiece = artPieceService.addArtPiece(title, description, imageUrl, price, artist);
-                        return ResponseEntity.ok(newArtPiece);
-                } catch (Exception e) {
-                        return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+                        ArtPiece artPiece = artPieceService.getArtPieceById(artPieceId);
+                        ArtPieceDto artPieceDto = artPieceService.convertToDto(artPiece);
+                        return ResponseEntity.ok(new ApiResponse("success", artPieceDto));
+                } catch (ResourceNotFoundException e) {
+                        return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
                 }
         }
 
-        // Get all available art pieces
-        @GetMapping("/available")
-        public ResponseEntity<?> getAvailableArtPieces() {
+        @PostMapping("/add")
+        public ResponseEntity<ApiResponse> addArtPiece(@RequestBody AddArtPieceRequest artPiece) {
                 try {
-                        List<ArtPiece> artPieces = artPieceService.getAvailableArtPieces();
-                        return ResponseEntity.ok(artPieces);
+                        ArtPiece theArtPiece = artPieceService.addArtPiece(artPiece);
+                        ArtPieceDto artPieceDto = artPieceService.convertToDto(theArtPiece);
+                        return ResponseEntity.ok(new ApiResponse("Add art piece success!", artPieceDto));
                 } catch (Exception e) {
-                        return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+                        return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
                 }
         }
 
-        // Get art pieces by artist
-        @GetMapping("/artist/{artistId}")
-        public ResponseEntity<?> getArtPiecesByArtist(@PathVariable Long artistId) {
+        @PutMapping("/artpiece/{artPieceId}/update")
+        public ResponseEntity<ApiResponse> updateArtPiece(@RequestBody ArtPieceUpdateRequest request, @PathVariable Long artPieceId) {
                 try {
-                        User artist = userService.findUserById(artistId)
-                                .orElseThrow(() -> new RuntimeException("Artist not found"));
-                        List<ArtPiece> artPieces = artPieceService.getArtPiecesByArtist(artist);
-                        return ResponseEntity.ok(artPieces);
-                } catch (Exception e) {
-                        return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+                        ArtPiece theArtPiece = artPieceService.updateArtPiece(request, artPieceId);
+                        ArtPieceDto artPieceDto = artPieceService.convertToDto(theArtPiece);
+                        return ResponseEntity.ok(new ApiResponse("Update art piece success!", artPieceDto));
+                } catch (ResourceNotFoundException e) {
+                        return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
                 }
         }
 
-        // Rent an art piece
-        @PostMapping("/rent/{artPieceId}")
-        public ResponseEntity<?> rentArtPiece(@PathVariable Long artPieceId) {
+        @DeleteMapping("/artpiece/{artPieceId}/delete")
+        public ResponseEntity<ApiResponse> deleteArtPiece(@PathVariable Long artPieceId) {
                 try {
-                        ArtPiece rentedArtPiece = artPieceService.rentArtPiece(artPieceId);
-                        return ResponseEntity.ok(rentedArtPiece);
-                } catch (Exception e) {
-                        return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+                        artPieceService.deleteArtPieceById(artPieceId);
+                        return ResponseEntity.ok(new ApiResponse("Delete art piece success!", artPieceId));
+                } catch (ResourceNotFoundException e) {
+                        return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
                 }
+        }
+
+        @GetMapping("/artpiece/by-artist")
+        public ResponseEntity<ApiResponse> findArtPieceByArtist(@RequestParam String artist) {
+                List<ArtPiece> artPieces = artPieceService.getArtPiecesByArtist(artist);
+                if (artPieces.isEmpty()) {
+                        return ResponseEntity.status(NOT_FOUND).body(new ApiResponse("No art pieces found for artist " + artist, null));
+                }
+                List<ArtPieceDto> convertedArtPieces = artPieceService.getConvertedArtPieces(artPieces);
+                return ResponseEntity.ok(new ApiResponse("success", convertedArtPieces));
         }
 }

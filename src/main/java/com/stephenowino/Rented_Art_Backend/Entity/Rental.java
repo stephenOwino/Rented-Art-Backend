@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
@@ -20,7 +21,7 @@ public class Rental {
 
         private Date startDate;
         private Date endDate;
-        private Double totalPrice;
+        private BigDecimal totalPrice;
 
         @ManyToOne
         @JoinColumn(name = "art_piece_id")
@@ -42,7 +43,7 @@ public class Rental {
                 private Long id;
                 private Date startDate;
                 private Date endDate;
-                private Double totalPrice;
+                private BigDecimal totalPrice;
                 private ArtPiece artPiece;
                 private User renter;
                 private RentalStatus status;
@@ -62,7 +63,7 @@ public class Rental {
                         return this;
                 }
 
-                public RentalBuilder totalPrice(Double totalPrice) {
+                public RentalBuilder totalPrice(BigDecimal totalPrice) {
                         this.totalPrice = totalPrice;
                         return this;
                 }

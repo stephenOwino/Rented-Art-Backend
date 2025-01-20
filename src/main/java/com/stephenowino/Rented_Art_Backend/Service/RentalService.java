@@ -4,9 +4,11 @@ import com.stephenowino.Rented_Art_Backend.Entity.ArtPiece;
 import com.stephenowino.Rented_Art_Backend.Entity.Rental;
 import com.stephenowino.Rented_Art_Backend.Entity.User;
 import com.stephenowino.Rented_Art_Backend.Repository.RentalRepository;
+import com.stephenowino.Rented_Art_Backend.Service.Artpiece.ArtPieceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,17 +23,16 @@ public class RentalService {
 
         // Rent an art piece
         public Rental rentArtPiece(User renter, Long artPieceId, int rentalDurationDays) {
-                Optional<ArtPiece> artPieceOpt = artPieceService.getArtPieceById(artPieceId);
+                Optional<ArtPiece> artPieceOpt = Optional.ofNullable(artPieceService.getArtPieceById(artPieceId));
                 if (artPieceOpt.isEmpty()) {
                         throw new RuntimeException("Art piece not found");
                 }
 
                 ArtPiece artPiece = artPieceOpt.get();
-                if (artPiece.getAvailabilityStatus() == ArtPiece.ArtStatus.RENTED) {
-                        throw new RuntimeException("Art piece is already rented");
-                }
+            BigDecimal price = artPiece.getPrice(); // Get the price as BigDecimal
+BigDecimal rentalDuration = new BigDecimal(rentalDurationDays); // Convert the rentalDurationDays to BigDecimal
 
-                double totalPrice = artPiece.getPrice() * rentalDurationDays;
+BigDecimal totalPrice = price.multiply(rentalDuration);
 
                 Rental rental = Rental.builder()
                         .startDate(new java.util.Date())
