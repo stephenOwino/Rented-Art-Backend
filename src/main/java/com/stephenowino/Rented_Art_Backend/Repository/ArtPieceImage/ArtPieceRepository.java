@@ -2,9 +2,11 @@ package com.stephenowino.Rented_Art_Backend.Repository.ArtPieceImage;
 
 import com.stephenowino.Rented_Art_Backend.Entity.ArtPiece;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface ArtPieceRepository extends JpaRepository<ArtPiece, Long> {
 
         List<ArtPiece> findByCategoryName(String category);
