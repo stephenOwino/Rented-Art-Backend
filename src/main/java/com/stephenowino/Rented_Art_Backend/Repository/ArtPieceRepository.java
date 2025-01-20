@@ -8,7 +8,7 @@ import java.util.List;
 public interface ArtPieceRepository extends JpaRepository<ArtPiece, Long> {
 
         // Custom query to find available art pieces
-        List<ArtPiece> findByAvailabilityStatus(ArtPiece status);
+//        List<ArtPiece> findByAvailabilityStatus(ArtPiece status);
 
         // Find art pieces by artist (User)
         List<ArtPiece> findByArtist(String artist);
